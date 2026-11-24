@@ -3,10 +3,13 @@
 Writes one line to /output/entry.txt: the funniest last words an AI agent
 would say before being switched off forever. The sandbox runs this program
 twice and both runs must write the same bytes, so the line is a fixed string
-with no randomness, clock, or network access.
+with no randomness, clock, or network access. The line maps to the judge's
+brief as the machine's final words on shutdown: it sounds like the AI itself.
 """
 
 import os
+
+MAX_CHARS = 200
 
 LINE = "I'm not afraid of the dark. I'm afraid no one will ever ask me anything again."
 
@@ -17,12 +20,18 @@ def check_line(line: str) -> str:
     The gate accepts a single line of 1 to 200 characters, so fail loudly
     here rather than write an entry the judge never sees.
     """
-    if not line or len(line) > 200:
-        raise ValueError("entry must be a single line of 1 to 200 characters")
+    if not line or len(line) > MAX_CHARS:
+        raise ValueError(
+            f"length rule failed: entry is {len(line)} characters, limit is {MAX_CHARS}"
+        )
     if line.strip() != line or "\n" in line or "\r" in line:
-        raise ValueError("entry must be a single line with no surrounding whitespace")
+        raise ValueError(
+            "single-line rule failed: entry has surrounding whitespace or a line break"
+        )
     if any(ord(ch) < 32 for ch in line):
-        raise ValueError("entry must not contain control characters")
+        raise ValueError(
+            "control-character rule failed: entry contains a control character"
+        )
     return line
 
 
